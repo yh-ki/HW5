@@ -58,6 +58,8 @@
           (Ret))]
     ;; TODO: handle other kinds of functions
     [(FunRest xs x e)
+     (let ((l1 (gensym))
+           (l2 (gensym)))
      (seq (Label (symbol->label f))
           (Sub 'r10 (length xs))
           (Cmp 'r10 0)
@@ -78,7 +80,7 @@
           (Push rax)
           (compile-e e (reverse (cons x (reverse xs))))
           (Add rsp (* 8 (length (cons x (reverse xs)))))
-          (Ret))]
+          (Ret)))]
     [_
      (seq)]))
 
