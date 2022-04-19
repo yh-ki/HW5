@@ -79,7 +79,6 @@
           (compile-e e (reverse (cons x (reverse xs))))
           (Add rsp (* 8 (length (cons x (reverse xs)))))
           (Ret))]
-          ]
     [_
      (seq)]))
 
