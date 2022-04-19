@@ -57,6 +57,29 @@
           (Add rsp (* 8 (length xs)))
           (Ret))]
     ;; TODO: handle other kinds of functions
+    [(FunRest xs x e)
+     (seq (Label (symbol->label f))
+          (Sub 'r10 (length xs))
+          (Cmp 'r10 0)
+          (Jl 'raise_error_align)
+          (Mov rax val-empty)
+          (Label l1)
+          (Cmp 'r10 0)
+          (Je l2)
+          (Mov (Offset rbx 0) rax)
+          (Pop rax)
+          (Mov (Offset rbx 8) rax)
+          (Mov rax rbx)
+          (Or rax type-cons)
+          (Add rbx 16)
+          (Sub 'r10 1)
+          (Jmp l1)
+          (Label l2)
+          (Push rax)
+          (compile-e e (reverse (cons x (reverse xs))))
+          (Add rsp (* 8 (length (cons x (reverse xs)))))
+          (Ret))]
+          ]
     [_
      (seq)]))
 
