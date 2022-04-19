@@ -81,7 +81,8 @@
           (compile-e e (cons x (reverse xs)))
           (Add rsp (* 8 (length (cons x (reverse xs)))))
           (Ret)))]
-    [(FunCase ds) (compile-help f ds)]
+    [(FunCase ds) (seq (Label (symbol->label f))
+                       (compile-help f ds))]
     [_
      (seq)]))
 
@@ -92,8 +93,7 @@
      (match d
        [(FunPlain xs e)
         (let ((l1 (gensym)))
-          (seq (Label (symbol->label f))
-               (Cmp 'r10 (length xs))
+          (seq (Cmp 'r10 (length xs))
                (Jne l1)
                (compile-e e (reverse xs))
                (Add rsp (* 8 (length xs)))
@@ -104,13 +104,13 @@
         (let ((l1 (gensym))
               (l2 (gensym))
               (l3 (gensym)))
-          (seq (Label (symbol->label f))
-               (Sub 'r10 (length xs))
-               (Cmp 'r10 0)
+          (seq (Cmp 'r10 (length xs))
                (Jl l3)
+               (Mov 'r11 'r10)
+               (Sub 'r11 (length xs))
                (Mov rax val-empty)
                (Label l1)
-               (Cmp 'r10 0)
+               (Cmp 'r11 0)
                (Je l2)
                (Mov (Offset rbx 0) rax)
                (Pop rax)
@@ -118,7 +118,7 @@
                (Mov rax rbx)
                (Or rax type-cons)
                (Add rbx 16)
-               (Sub 'r10 1)
+               (Sub 'r11 1)
                (Jmp l1)
                (Label l2)
                (Push rax)
