@@ -81,10 +81,52 @@
           (compile-e e (cons x (reverse xs)))
           (Add rsp (* 8 (length (cons x (reverse xs)))))
           (Ret)))]
+    [(FunCase ds) (compile-help f ds)]
     [_
      (seq)]))
 
-
+(define (compile-help f ds)
+  (match ds
+    ['() (seq (Jmp 'raise_error_align))]
+    [(cons d ds)
+     (match d
+       [(FunPlain xs e)
+        (let ((l1 (gensym)))
+          (seq (Label (symbol->label f))
+               (Cmp 'r10 (length xs))
+               (Jne l1)
+               (compile-e e (reverse xs))
+               (Add rsp (* 8 (length xs)))
+               (Ret)
+               (Label l1)
+               (compile-help f ds)))]
+       [(FunRest xs x e)
+        (let ((l1 (gensym))
+              (l2 (gensym))
+              (l3 (gensym)))
+          (seq (Label (symbol->label f))
+               (Sub 'r10 (length xs))
+               (Cmp 'r10 0)
+               (Jl l3)
+               (Mov rax val-empty)
+               (Label l1)
+               (Cmp 'r10 0)
+               (Je l2)
+               (Mov (Offset rbx 0) rax)
+               (Pop rax)
+               (Mov (Offset rbx 8) rax)
+               (Mov rax rbx)
+               (Or rax type-cons)
+               (Add rbx 16)
+               (Sub 'r10 1)
+               (Jmp l1)
+               (Label l2)
+               (Push rax)
+               (compile-e e (cons x (reverse xs)))
+               (Add rsp (* 8 (length (cons x (reverse xs)))))
+               (Ret)
+               (Label l3)
+               (compile-help f ds)))])]))
 
 
 ;; Expr CEnv -> Asm
