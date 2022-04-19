@@ -51,7 +51,7 @@
     [(FunPlain xs e)
      (seq (Label (symbol->label f))
           ;; TODO: check arity
-          (Cmp 'r10 (len xs))
+          (Cmp 'r10 (length xs))
           (Jne 'raise_error_align)
           (compile-e e (reverse xs))
           (Add rsp (* 8 (length xs)))
@@ -173,7 +173,7 @@
          (Push rax)
          (compile-es es (cons #f c))
          ;; TODO: communicate argument count to called function
-         (Mov 'r10 (len es))
+         (Mov 'r10 (length es))
          (Jmp (symbol->label f))
          (Label r))))
 
