@@ -78,7 +78,7 @@
           (Jmp l1)
           (Label l2)
           (Push rax)
-          (compile-e e (reverse (cons x (reverse xs))))
+          (compile-e e (cons x (reverse xs)))
           (Add rsp (* 8 (length (cons x (reverse xs)))))
           (Ret)))]
     [_
